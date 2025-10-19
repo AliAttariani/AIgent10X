@@ -3,25 +3,45 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "dev": "next dev",
+    "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "drizzle:gen": "drizzle-kit generate",
+    "drizzle:push": "drizzle-kit push",
+    "lint": "next lint",
+    "prepare": "husky install",
+    "postinstall": "echo \"AIgent10X deps installed\""
   },
   "dependencies": {
+    "@clerk/nextjs": "^6.33.7",
+    "@uploadthing/react": "^7.3.3",
+    "@uploadthing/shared": "^7.1.10",
+    "@vercel/analytics": "^1.5.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "drizzle-orm": "^0.44.6",
+    "lucide-react": "^0.546.0",
+    "mysql2": "^3.15.2",
+    "next": "15.5.6",
+    "next-pwa": "^5.6.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "next": "15.5.6"
+    "stripe": "^19.1.0",
+    "tailwind-merge": "^3.3.1",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
-    "typescript": "^5",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
+    "@types/node": "^20.19.22",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "drizzle-kit": "^0.31.5",
     "eslint": "^9",
     "eslint-config-next": "15.5.6",
-    "@eslint/eslintrc": "^3"
+    "tailwindcss": "^4",
+    "tailwindcss-animate": "^1.0.7",
+    "tw-animate-css": "^1.4.0",
+    "typescript": "^5"
   }
 }

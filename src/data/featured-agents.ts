@@ -1,0 +1,91 @@
+import type {
+  AgentCardProps,
+  AgentPricingType,
+} from "@/components/agent-card";
+
+export interface FeaturedAgent extends AgentCardProps {
+  category: string;
+  pricingType: AgentPricingType;
+  launchOrder: number;
+}
+
+export const featuredAgents: FeaturedAgent[] = [
+  {
+    id: "agent-1",
+    slug: "growth-coach-pro",
+    title: "Growth Coach Pro",
+    tagline: "Optimizes your go-to-market strategy with live data.",
+    price: "$49/mo",
+    rating: 4.8,
+    verified: true,
+    thumbnail: "/images/agents/placeholder.jpg",
+    category: "Marketing",
+    pricingType: "subscription",
+    launchOrder: 6,
+  },
+  {
+    id: "agent-2",
+    slug: "support-sage",
+    title: "Support Sage",
+    tagline: "Autonomous support agent with empathetic triage.",
+    price: "$29/mo",
+    rating: 4.6,
+    verified: true,
+    thumbnail: "/images/agents/placeholder.jpg",
+    category: "Support",
+    pricingType: "subscription",
+    launchOrder: 5,
+  },
+  {
+    id: "agent-3",
+    slug: "finance-falcon",
+    title: "Finance Falcon",
+    tagline: "Automates forecasting and alerts across your SaaS stack.",
+    price: "$59/mo",
+    rating: 4.9,
+    verified: true,
+    thumbnail: "/images/agents/placeholder.jpg",
+    category: "Finance",
+    pricingType: "subscription",
+    launchOrder: 4,
+  },
+  {
+    id: "agent-4",
+    slug: "ops-orbit",
+    title: "Ops Orbit",
+    tagline: "Keeps your ops workflows humming 24/7.",
+    price: "$39/mo",
+    rating: 4.7,
+    verified: false,
+    thumbnail: "https://placehold.co/600x400",
+    category: "Operations",
+    pricingType: "subscription",
+    launchOrder: 3,
+  },
+  {
+    id: "agent-5",
+    slug: "copy-catalyst",
+    title: "Copy Catalyst",
+    tagline: "AI copywriting tuned for conversion-focused marketers.",
+    price: "$19/mo",
+    rating: 4.5,
+    verified: false,
+    thumbnail: "https://placehold.co/600x400",
+    category: "Content",
+    pricingType: "one-time",
+    launchOrder: 2,
+  },
+  {
+    id: "agent-6",
+    slug: "talent-tracker",
+    title: "Talent Tracker",
+    tagline: "Automates sourcing and screening for fast-scaling teams.",
+    price: "Free beta",
+    rating: 4.4,
+    verified: true,
+    thumbnail: "https://placehold.co/600x400",
+    category: "HR",
+    pricingType: "free",
+    launchOrder: 1,
+  },
+];
