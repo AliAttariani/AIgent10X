@@ -1,9 +1,7 @@
-import type {
-  AgentCardProps,
-  AgentPricingType,
-} from "@/components/agent-card";
+import type { AgentCardProps, AgentPricingType } from "@/components/agent-card";
+import type { AgentSummary } from "@/types/agents";
 
-export interface FeaturedAgent extends AgentCardProps {
+export interface FeaturedAgent extends AgentCardProps, AgentSummary {
   category: string;
   pricingType: AgentPricingType;
   launchOrder: number;
@@ -57,7 +55,7 @@ export const featuredAgents: FeaturedAgent[] = [
     price: "$39/mo",
     rating: 4.7,
     verified: false,
-    thumbnail: "https://placehold.co/600x400",
+    thumbnail: "/images/agents/placeholder.jpg",
     category: "Operations",
     pricingType: "subscription",
     launchOrder: 3,
@@ -70,7 +68,7 @@ export const featuredAgents: FeaturedAgent[] = [
     price: "$19/mo",
     rating: 4.5,
     verified: false,
-    thumbnail: "https://placehold.co/600x400",
+    thumbnail: "/images/agents/placeholder.jpg",
     category: "Content",
     pricingType: "one-time",
     launchOrder: 2,
@@ -83,7 +81,7 @@ export const featuredAgents: FeaturedAgent[] = [
     price: "Free beta",
     rating: 4.4,
     verified: true,
-    thumbnail: "https://placehold.co/600x400",
+    thumbnail: "/images/agents/placeholder.jpg",
     category: "HR",
     pricingType: "free",
     launchOrder: 1,

@@ -11,18 +11,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import type { AgentSummary } from "@/types/agents";
 
 export type AgentPricingType = "free" | "one-time" | "subscription";
 
-export interface AgentCardProps {
-  id: string;
-  slug: string;
-  title: string;
-  tagline: string;
-  price: string;
-  rating?: number;
-  verified?: boolean;
-  thumbnail: string;
+export interface AgentCardProps extends AgentSummary {
   category?: string;
   pricingType?: AgentPricingType;
 }
@@ -44,17 +37,21 @@ export function AgentCard({
     subscription: "Subscription",
   };
 
+  const imgSrc = thumbnail || "https://placehold.co/600x400/png";
+  const isRemoteImage = /^https?:\/\//.test(imgSrc);
+
   return (
     <Card className="flex h-full flex-col overflow-hidden">
       <CardHeader className="p-0">
         <Link href={`/agents/${slug}`} className="relative block">
           <Image
-            src={thumbnail}
+            src={imgSrc}
             alt={title}
             width={600}
             height={400}
-            className="h-full w-full object-cover"
-            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-cover"
+            sizes="(max-width: 640px) 100vw, 33vw"
+            unoptimized={isRemoteImage}
           />
           {verified ? (
             <Badge className="absolute left-3 top-3 bg-emerald-600 text-white">

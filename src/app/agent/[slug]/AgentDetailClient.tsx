@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 
 interface AgentDetailClientProps {
   agent: FeaturedAgent & { gallery?: string[] };
+  showBackLink?: boolean;
 }
 
 const staticReviews = [
@@ -76,7 +77,7 @@ const defaultCapabilities = {
   ],
 };
 
-export function AgentDetailClient({ agent }: AgentDetailClientProps) {
+export function AgentDetailClient({ agent, showBackLink }: AgentDetailClientProps) {
   const galleryImages = agent.gallery?.length ? agent.gallery : [agent.thumbnail];
   const [activeSlide, setActiveSlide] = useState(0);
 
@@ -330,6 +331,15 @@ export function AgentDetailClient({ agent }: AgentDetailClientProps) {
         <aside className="relative lg:pl-4">
           <div className="sticky top-24 space-y-6 rounded-3xl border border-border bg-card p-6 shadow-sm">
             <div className="space-y-3">
+              {showBackLink ? (
+                <Link
+                  href="/browse"
+                  className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground transition hover:text-foreground"
+                >
+                  <span aria-hidden>←</span>
+                  Back to Browse
+                </Link>
+              ) : null}
               <h1 className="text-2xl font-bold tracking-tight text-foreground">{agent.title}</h1>
               <p className="text-sm text-muted-foreground">{agent.tagline}</p>
             </div>
