@@ -1,64 +1,30 @@
-const STORAGE_PREFIX = "creator-draft";
-
-interface StoredDraft {
-  version: number;
-  updatedAt: number;
-  data: unknown;
-}
-
-function getStorageKey(userId: string) {
-  return `${STORAGE_PREFIX}:${userId}`;
-}
-
-export async function saveDraft(userId: string, data: unknown): Promise<void> {
-  if (typeof window === "undefined" || !userId) {
-    return;
-  }
-
-  const payload: StoredDraft = {
-    version: 1,
-    updatedAt: Date.now(),
-    data,
-  };
-
+export async function saveDraft(userId: string, data: unknown) {
   try {
-    window.localStorage.setItem(getStorageKey(userId), JSON.stringify(payload));
-  } catch (error) {
-    console.warn("[creator-drafts] Failed to save draft", error);
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.localStorage.setItem(
+      `draft:${userId}`,
+      JSON.stringify({
+        data,
+        ts: Date.now(),
+      }),
+    );
+  } catch {
+    // best-effort persistence; ignore storage failures
   }
 }
 
-export async function loadDraft(userId: string): Promise<StoredDraft | null> {
-  if (typeof window === "undefined" || !userId) {
-    return null;
-  }
-
+export async function loadDraft(userId: string) {
   try {
-    const raw = window.localStorage.getItem(getStorageKey(userId));
-    if (!raw) {
+    if (typeof window === "undefined") {
       return null;
     }
 
-    const parsed = JSON.parse(raw) as StoredDraft;
-    if (!parsed || typeof parsed !== "object") {
-      return null;
-    }
-
-    return parsed;
-  } catch (error) {
-    console.warn("[creator-drafts] Failed to load draft", error);
+    const value = window.localStorage.getItem(`draft:${userId}`);
+    return value ? JSON.parse(value).data : null;
+  } catch {
     return null;
-  }
-}
-
-export async function clearDraft(userId: string): Promise<void> {
-  if (typeof window === "undefined" || !userId) {
-    return;
-  }
-
-  try {
-    window.localStorage.removeItem(getStorageKey(userId));
-  } catch (error) {
-    console.warn("[creator-drafts] Failed to clear draft", error);
   }
 }

@@ -10,20 +10,47 @@ import { featuredAgents } from "@/data/featured-agents";
 
 const pricingTiers = ["free", "one-time", "subscription"] as const;
 
+const PRO_CREATOR_SLUGS = new Set([
+  "growth-coach-pro",
+  "support-sage",
+  "finance-falcon",
+  "ops-orbit",
+]);
+
+const FEATURED_PRO_SLUGS = new Set([
+  "growth-coach-pro",
+  "finance-falcon",
+]);
+
 const pricingLabels: Record<(typeof pricingTiers)[number], string> = {
   free: "Free access",
   "one-time": "One-time purchase",
   subscription: "Subscription",
 };
 
+const getCreatorPlan = (slug: string) => (PRO_CREATOR_SLUGS.has(slug) ? "pro" : "free");
+
+const scoreAgent = (launchOrder: number, slug: string) =>
+  launchOrder * (PRO_CREATOR_SLUGS.has(slug) ? 1.2 : 1);
+
 export default function BrowsePage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedPricing, setSelectedPricing] = useState<(typeof pricingTiers)[number][]>([]);
 
-  const sortedAgents = useMemo(
-    () => [...featuredAgents].sort((a, b) => b.launchOrder - a.launchOrder),
-    [],
-  );
+  const sortedAgents = useMemo(() => {
+    return [...featuredAgents]
+      .map((agent, index) => ({ agent, index }))
+      .sort((aRef, bRef) => {
+        const scoreA = scoreAgent(aRef.agent.launchOrder, aRef.agent.slug);
+        const scoreB = scoreAgent(bRef.agent.launchOrder, bRef.agent.slug);
+        if (scoreB !== scoreA) {
+          return scoreB - scoreA;
+        }
+        // Stable sort fallback to original order
+        return aRef.index - bRef.index;
+      })
+      .map(({ agent }) => agent);
+  }, []);
 
   const categories = useMemo(
     () => Array.from(new Set(sortedAgents.map((agent) => agent.category))).sort(),
@@ -190,6 +217,9 @@ export default function BrowsePage() {
                           {pricingLabels[heroAgent.pricingType]}
                         </Badge>
                       ) : null}
+                      {getCreatorPlan(heroAgent.slug) === "pro" ? (
+                        <Badge className="bg-black text-white">Pro Creator</Badge>
+                      ) : null}
                       {heroAgent.verified ? (
                         <Badge className="bg-emerald-600 text-white">
                           Verified
@@ -244,7 +274,12 @@ export default function BrowsePage() {
               </div>
               <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
                 {gridAgents.map((agent) => (
-                  <AgentCard key={agent.id} {...agent} />
+                  <AgentCard
+                    key={agent.id}
+                    {...agent}
+                    creatorPlan={getCreatorPlan(agent.slug)}
+                    isFeatured={FEATURED_PRO_SLUGS.has(agent.slug)}
+                  />
                 ))}
               </div>
             </section>

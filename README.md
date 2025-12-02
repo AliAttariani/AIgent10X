@@ -1,5 +1,5 @@
-# AIgent10X
-AIgent10X is a next-generation marketplace for AI agents - a platform where users can discover, test, and deploy intelligent agents that automate real-world tasks. The application is built with Next.js 15, TypeScript, Clerk, Stripe, and Tailwind-powered UI primitives tuned for mobile-first experiences.
+# PantherIQ
+PantherIQ is a next-generation marketplace for AI agents—a platform where users can discover, test, and deploy intelligent agents that automate real-world tasks. The application is built with Next.js 15, TypeScript, Clerk, Stripe, and Tailwind-powered UI primitives tuned for mobile-first experiences. Learn more at https://pantheriq.ai.
 
 ## Features
 - Marketplace browse and detail pages for featured agents
@@ -30,3 +30,15 @@ Then open http://localhost:3000 in your browser. Edits to files inside `src/app`
 
 ## Deployment
 Deploy with Vercel or your preferred hosting provider. When using Vercel, connect the repository and configure the required environment variables for Clerk and Stripe.
+
+## Environment Variables
+Copy `.env.example` to `.env.local` and supply the required secrets.
+
+```
+NEXT_PUBLIC_APP_NAME=PantherIQ
+```
+
+## Contact
+- Website: https://pantheriq.ai
+- Support: support@pantheriq.ai
+- Security: security@pantheriq.ai

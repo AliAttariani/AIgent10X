@@ -2,101 +2,114 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+
+import { BRAND } from "@/config/brand";
+import { saveDraft } from "@/lib/creator-drafts";
+
+type SaveDraftFn = typeof saveDraft;
 
 interface CreatorFlowHeaderProps {
-  stepIndex: number;
-  onStepBack: () => void | Promise<void>;
-  onAutoSaveDraft: () => void | Promise<void>;
+  step: number;
+  onPreviousStep?: () => void | Promise<void>;
+  currentFormData: unknown;
+  userId: string;
 }
 
-export default function CreatorFlowHeader({ stepIndex, onStepBack, onAutoSaveDraft }: CreatorFlowHeaderProps) {
+const persistDraft: SaveDraftFn = saveDraft ?? (async () => {});
+
+export default function CreatorFlowHeader({
+  step,
+  onPreviousStep,
+  currentFormData,
+  userId,
+}: CreatorFlowHeaderProps) {
   const router = useRouter();
-  const [isExitDialogOpen, setExitDialogOpen] = useState(false);
+  const [isConfirmOpen, setConfirmOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   const handleBack = useCallback(() => {
-    if (stepIndex > 0) {
-      void onStepBack();
+    if (step > 1 && typeof onPreviousStep === "function") {
+      void onPreviousStep();
       return;
     }
+
     router.push("/browse");
-  }, [onStepBack, router, stepIndex]);
+  }, [onPreviousStep, router, step]);
 
   const handleExit = useCallback(() => {
-    setExitDialogOpen(true);
+    setConfirmOpen(true);
   }, []);
 
-  const handleConfirmExit = useCallback(async () => {
+  const handleCancel = useCallback(() => {
+    setConfirmOpen(false);
+  }, []);
+
+  const handleConfirm = useCallback(async () => {
     try {
       setIsSaving(true);
-      await onAutoSaveDraft();
+      await persistDraft(userId, currentFormData);
+      setConfirmOpen(false);
+      router.push("/creator/drafts");
     } finally {
       setIsSaving(false);
-      setExitDialogOpen(false);
-      router.push("/creator/drafts");
     }
-  }, [onAutoSaveDraft, router]);
+  }, [currentFormData, router, userId]);
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur">
-        <div className="mx-auto flex h-14 w-full max-w-4xl items-center justify-between px-4">
+      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur border-b">
+        <div className="mx-auto max-w-3xl md:max-w-4xl px-4 h-14 flex items-center justify-between">
           <button
             type="button"
             onClick={handleBack}
-            className="inline-flex items-center gap-2 rounded-full border border-transparent px-3 py-1 text-sm font-medium text-muted-foreground transition hover:text-foreground"
+            className="inline-flex h-8 items-center gap-2 rounded-md px-3 text-sm font-medium text-muted-foreground transition hover:bg-muted/50 hover:text-foreground"
           >
-            <span aria-hidden>←</span>
-            Back
+            <span aria-hidden="true" className="text-lg leading-none">
+              ←
+            </span>
+            <span>Back</span>
           </button>
-          <span className="text-sm font-semibold tracking-tight text-foreground">AIgent10X</span>
+          <span className="text-sm font-semibold tracking-tight text-foreground">{BRAND.NAME}</span>
           <button
             type="button"
             onClick={handleExit}
-            className="inline-flex items-center gap-2 rounded-full border border-transparent px-3 py-1 text-sm font-medium text-muted-foreground transition hover:text-foreground"
+            className="inline-flex h-8 items-center rounded-md px-3 text-sm font-medium text-muted-foreground transition hover:bg-muted/50 hover:text-foreground"
           >
             Exit
           </button>
         </div>
       </header>
 
-      <Dialog open={isExitDialogOpen} onOpenChange={setExitDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Leave and save draft?</DialogTitle>
-            <DialogDescription>
-              Your progress will be saved. You can continue later from your drafts.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="gap-2 sm:gap-3">
-            <DialogClose asChild>
+      {isConfirmOpen ? (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 px-4">
+          <div className="w-full max-w-sm rounded-xl border border-border bg-background p-6 shadow-lg">
+            <div className="space-y-2">
+              <h2 className="text-lg font-semibold text-foreground">Leave and save draft?</h2>
+              <p className="text-sm text-muted-foreground">
+                Your progress will be saved. You can continue later from your drafts.
+              </p>
+            </div>
+            <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-end">
               <button
                 type="button"
-                className="inline-flex items-center justify-center rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition hover:text-foreground"
+                onClick={handleCancel}
+                disabled={isSaving}
+                className="inline-flex items-center justify-center rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Cancel
               </button>
-            </DialogClose>
-            <button
-              type="button"
-              onClick={handleConfirmExit}
-              disabled={isSaving}
-              className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
-            >
-              {isSaving ? "Saving..." : "Save & Exit"}
-            </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+              <button
+                type="button"
+                onClick={handleConfirm}
+                disabled={isSaving}
+                className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {isSaving ? "Saving..." : "Save & Exit"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </>
   );
 }

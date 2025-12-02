@@ -15,9 +15,13 @@ import type { AgentSummary } from "@/types/agents";
 
 export type AgentPricingType = "free" | "one-time" | "subscription";
 
+type CreatorPlan = "free" | "pro";
+
 export interface AgentCardProps extends AgentSummary {
   category?: string;
   pricingType?: AgentPricingType;
+  creatorPlan?: CreatorPlan;
+  isFeatured?: boolean;
 }
 
 export function AgentCard({
@@ -30,6 +34,8 @@ export function AgentCard({
   thumbnail,
   category,
   pricingType,
+  creatorPlan,
+  isFeatured,
 }: AgentCardProps) {
   const pricingLabelMap: Record<AgentPricingType, string> = {
     free: "Free",
@@ -39,6 +45,7 @@ export function AgentCard({
 
   const imgSrc = thumbnail || "https://placehold.co/600x400/png";
   const isRemoteImage = /^https?:\/\//.test(imgSrc);
+  const isProCreator = creatorPlan === "pro";
 
   return (
     <Card className="flex h-full flex-col overflow-hidden">
@@ -58,6 +65,11 @@ export function AgentCard({
               Verified
             </Badge>
           ) : null}
+          {isFeatured ? (
+            <span className="absolute right-[-42px] top-5 rotate-45 bg-black px-10 py-1 text-xs font-semibold uppercase tracking-wide text-white shadow-lg">
+              Featured
+            </span>
+          ) : null}
         </Link>
       </CardHeader>
       <CardContent className="flex flex-1 flex-col gap-3 p-5">
@@ -71,6 +83,9 @@ export function AgentCard({
             <Badge variant="secondary" className="text-foreground">
               {pricingLabelMap[pricingType]}
             </Badge>
+          ) : null}
+          {isProCreator ? (
+            <Badge className="bg-black text-white">Pro Creator</Badge>
           ) : null}
         </div>
         <div className="space-y-1">

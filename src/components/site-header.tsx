@@ -7,6 +7,7 @@ import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { BRAND } from "@/config/brand";
 
 const navLinks = [
   { href: "/browse", label: "Browse" },
@@ -33,7 +34,7 @@ export default function SiteHeader() {
             href="/"
             className="inline-flex h-11 items-center text-lg font-semibold"
           >
-            AIgent10X
+            {BRAND.NAME}
           </Link>
           <nav className="hidden gap-4 text-sm font-medium md:flex">
             {navLinks.map(({ href, label }) => (

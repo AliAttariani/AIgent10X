@@ -375,6 +375,8 @@ export function AgentDetailClient({ agent, showBackLink }: AgentDetailClientProp
             <div className="space-y-2 text-xs text-muted-foreground">
               <p>Ships in under 5 minutes with guided setup.</p>
               <p>Includes 7-day satisfaction refund guarantee.</p>
+              <p>Includes a 10% platform processing fee.</p>
+              <p>Creators receive 90% of the sale. PantherIQ collects a 10% platform fee.</p>
             </div>
           </div>
         </aside>
