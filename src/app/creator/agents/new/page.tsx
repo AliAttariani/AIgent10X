@@ -247,7 +247,7 @@ export default function NewAgentPage() {
     const allValid = steps.every((step) => validateStep(step.key));
     if (!allValid) return;
     if (!termsAccepted) {
-      setToastMessage("Please accept the Creator Agreement to submit.");
+      setToastMessage("Accept the Automation Deployment Agreement before launch.");
       return;
     }
     if (hasReachedFreeLimit) {
@@ -255,7 +255,7 @@ export default function NewAgentPage() {
       return;
     }
 
-    console.info("Submitting draft", {
+    console.info("Dispatching automation blueprint", {
       basics,
       pricing,
       tech,
@@ -263,7 +263,7 @@ export default function NewAgentPage() {
 
     setPublishedAgents((previous) => previous + 1);
 
-    setToastMessage("Submitted for review (mock)");
+    setToastMessage("Automation queued for deployment (mock)");
     setBasics(initialBasics);
     setPricing(initialPricing);
     setTech(initialTech);
@@ -298,9 +298,9 @@ export default function NewAgentPage() {
       />
       <main className="mx-auto max-w-3xl md:max-w-4xl px-4 pt-6 md:pt-8 pb-24">
         <header>
-          <p className="text-xs font-semibold uppercase tracking-wide text-primary">Creator Studio</p>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight text-foreground md:text-4xl">Submit a new agent</h1>
-          <p className="mt-2 text-sm text-muted-foreground">We usually review within a day.</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-primary">Explore Agents</p>
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-foreground md:text-4xl">Automate your business and scale without hiring.</h1>
+          <p className="mt-2 text-sm text-muted-foreground">Ready-made AI agents that save time, generate leads, and run workflows autonomously. Deploy results, not tools.</p>
         </header>
 
         <nav className="mt-4 md:mt-6 flex flex-wrap gap-2 rounded-2xl bg-muted/40 p-2 text-sm md:gap-3">
@@ -340,20 +340,20 @@ export default function NewAgentPage() {
               </h2>
               <section>
                 <div className="mb-6 last:mb-0">
-                  <label className="block text-sm font-medium text-foreground">Agent name</label>
+                  <label className="block text-sm font-medium text-foreground">Automation name</label>
                   <input
                     type="text"
                     value={basics.name}
                     onChange={(event) => setBasics((prev) => ({ ...prev, name: event.target.value }))}
                     className="mt-2 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none"
-                    placeholder="Growth Coach Pro"
+                    placeholder="Autonomous Revenue Desk"
                   />
                   {errors.name ? <p className="mt-2 text-xs text-destructive">{errors.name}</p> : null}
                 </div>
 
                 <div className="mb-6 last:mb-0">
                   <div className="flex items-center justify-between text-sm">
-                    <label className="font-medium text-foreground">One-liner</label>
+                    <label className="font-medium text-foreground">Outcome one-liner</label>
                     <span className="text-xs text-muted-foreground">{basics.tagline.length}/80</span>
                   </div>
                   <input
@@ -362,31 +362,31 @@ export default function NewAgentPage() {
                     value={basics.tagline}
                     onChange={(event) => setBasics((prev) => ({ ...prev, tagline: event.target.value }))}
                     className="mt-2 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none"
-                    placeholder="Optimizes your go-to-market strategy with live data."
+                    placeholder="Automates pipeline follow-ups and books meetings 24/7."
                   />
                   {errors.tagline ? <p className="mt-2 text-xs text-destructive">{errors.tagline}</p> : null}
                 </div>
 
                 <div className="mb-6 last:mb-0">
-                  <label className="block text-sm font-medium text-foreground">Long description (Markdown enabled)</label>
+                  <label className="block text-sm font-medium text-foreground">Deployment blueprint (Markdown enabled)</label>
                   <textarea
                     rows={6}
                     value={basics.description}
                     onChange={(event) => setBasics((prev) => ({ ...prev, description: event.target.value }))}
                     className="mt-2 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none"
-                    placeholder="## Overview\nExplain what problems you solve, integrations you support, and how teams deploy the agent."
+                    placeholder={"## Outcome\nDetail the measurable result, required integrations, and how teams launch this automation."}
                   />
                   {errors.description ? <p className="mt-2 text-xs text-destructive">{errors.description}</p> : null}
                 </div>
 
                 <div className="mb-6 last:mb-0">
-                  <label className="block text-sm font-medium text-foreground">Category</label>
+                  <label className="block text-sm font-medium text-foreground">Outcome category</label>
                   <select
                     value={basics.category}
                     onChange={(event) => setBasics((prev) => ({ ...prev, category: event.target.value }))}
                     className="mt-2 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none"
                   >
-                    <option value="">Select Category</option>
+                    <option value="">Select outcome category</option>
                     {categoryOptions.map((category) => (
                       <option key={category} value={category}>
                         {category}
@@ -397,7 +397,7 @@ export default function NewAgentPage() {
                 </div>
 
                 <div className="mb-6 last:mb-0">
-                  <label className="block text-sm font-medium text-foreground">Logo upload</label>
+                  <label className="block text-sm font-medium text-foreground">Automation logo</label>
                   <input
                     type="file"
                     accept="image/*"
@@ -418,11 +418,11 @@ export default function NewAgentPage() {
           {currentStep.key === "pricing" ? (
             <>
               <h2 className="mt-8 mb-4 text-xs font-semibold uppercase tracking-[0.35em] text-muted-foreground">
-                PRICING & TRIAL
+                ACCESS & VALUE
               </h2>
               <section>
                 <div className="mb-6 last:mb-0">
-                  <label className="block text-sm font-medium text-foreground">Pricing model</label>
+                  <label className="block text-sm font-medium text-foreground">Access model</label>
                   <div className="mt-3 grid gap-3 md:grid-cols-3">
                     {["free", "one-time", "subscription"].map((option) => {
                       const value = option as PricingType;
@@ -438,7 +438,11 @@ export default function NewAgentPage() {
                               : "border border-border text-muted-foreground hover:border-primary"
                           } rounded-2xl px-4 py-3 text-sm font-medium transition`}
                         >
-                          {option === "one-time" ? "One-time" : option === "free" ? "Free" : "Subscription (monthly)"}
+                          {option === "one-time"
+                            ? "One-time deployment"
+                            : option === "free"
+                              ? "Included pilot"
+                              : "Managed subscription"}
                         </button>
                       );
                     })}
@@ -449,7 +453,7 @@ export default function NewAgentPage() {
                 {pricing.pricingType !== "free" ? (
                   <div className="mb-6 last:mb-0">
                     <label className="block text-sm font-medium text-foreground">
-                      {pricing.pricingType === "one-time" ? "One-time price" : "Monthly price"}
+                      {pricing.pricingType === "one-time" ? "One-time deployment fee" : "Monthly automation service"}
                     </label>
                     <div className="mt-2 flex items-center gap-2">
                       <span className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">USD</span>
@@ -460,7 +464,7 @@ export default function NewAgentPage() {
                         value={pricing.amount}
                         onChange={(event) => setPricing((prev) => ({ ...prev, amount: event.target.value }))}
                         className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none"
-                        placeholder="49"
+                        placeholder="499"
                       />
                     </div>
                     {errors.amount ? <p className="mt-2 text-xs text-destructive">{errors.amount}</p> : null}
@@ -468,7 +472,7 @@ export default function NewAgentPage() {
                 ) : null}
 
                 <div className="mb-6 last:mb-0">
-                  <label className="block text-sm font-medium text-foreground">Trial days</label>
+                  <label className="block text-sm font-medium text-foreground">Pilot days</label>
                   <input
                     type="number"
                     min="0"
@@ -489,7 +493,7 @@ export default function NewAgentPage() {
                     }
                     className="mt-1 size-4 rounded border border-border text-primary focus:ring-primary"
                   />
-                  <span>I confirm that this agent offers a 7-day refund policy with clear terms disclosed to buyers.</span>
+                  <span>I confirm this automation meets PantherIQ reliability standards and delivers its promised outcomes.</span>
                 </label>
                 {errors.refundPolicyAccepted ? (
                   <p className="-mt-4 text-xs text-destructive">{errors.refundPolicyAccepted}</p>
@@ -500,7 +504,7 @@ export default function NewAgentPage() {
 
           {currentStep.key === "tech" ? (
             <>
-              <h2 className="mt-8 mb-4 text-xs font-semibold uppercase tracking-[0.35em] text-muted-foreground">TECH</h2>
+              <h2 className="mt-8 mb-4 text-xs font-semibold uppercase tracking-[0.35em] text-muted-foreground">TECH & EXECUTION</h2>
               <section>
                 <div className="mb-6 last:mb-0">
                   <label className="block text-sm font-medium text-foreground">Configuration JSON</label>
@@ -550,7 +554,7 @@ export default function NewAgentPage() {
                       onChange={(event) => setTermsAccepted(event.target.checked)}
                       className="mt-1 size-4 rounded border border-border text-primary focus:ring-primary"
                     />
-                    <span>I agree to the Creator Agreement and confirm I have the rights to distribute this Agent.</span>
+                    <span>I agree to the Automation Deployment Agreement and confirm this automation delivers the stated results.</span>
                   </label>
                   <button
                     type="button"
@@ -578,7 +582,7 @@ export default function NewAgentPage() {
               disabled={stepIndex === steps.length - 1 ? !termsAccepted : false}
               className="rounded-xl bg-primary px-6 py-2 text-sm font-semibold text-primary-foreground shadow transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {stepIndex === steps.length - 1 ? "Submit for Review" : "Next"}
+              {stepIndex === steps.length - 1 ? "Deploy Automations" : "Next"}
             </button>
           </div>
 
@@ -597,7 +601,7 @@ export default function NewAgentPage() {
                 disabled={stepIndex === steps.length - 1 ? !termsAccepted : false}
                 className="flex-1 rounded-lg bg-primary px-4 py-2 font-semibold text-primary-foreground shadow transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {stepIndex === steps.length - 1 ? "Submit" : "Next"}
+                {stepIndex === steps.length - 1 ? "Deploy Automations" : "Next"}
               </button>
             </div>
           </div>
@@ -607,7 +611,7 @@ export default function NewAgentPage() {
       <Dialog open={isAgreementOpen} onOpenChange={setAgreementOpen}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
-            <DialogTitle>Creator Agreement</DialogTitle>
+            <DialogTitle>Automation Deployment Agreement</DialogTitle>
           </DialogHeader>
           <div className="max-h-[70vh] overflow-y-auto pr-1">
             <AgreementBody />
@@ -619,7 +623,7 @@ export default function NewAgentPage() {
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition hover:border-primary hover:text-foreground"
             >
-              Open full page
+              View full agreement
             </a>
             <button
               type="button"
@@ -638,10 +642,10 @@ export default function NewAgentPage() {
       <Dialog open={isUpgradeOpen} onOpenChange={setUpgradeOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Upgrade to Pro</DialogTitle>
+            <DialogTitle>Scale Your Automation Stack</DialogTitle>
           </DialogHeader>
           <div className="space-y-3 text-sm text-muted-foreground">
-            <p>Free users can publish one agent. Upgrade to Pro to publish unlimited agents.</p>
+            <p>Free access covers one deployment. Partner with PantherIQ for unlimited proprietary agents managed for measurable outcomes.</p>
           </div>
           <DialogFooter className="flex-col gap-2 sm:flex-row sm:justify-end">
             <button
@@ -649,14 +653,14 @@ export default function NewAgentPage() {
               onClick={() => setUpgradeOpen(false)}
               className="inline-flex w-full items-center justify-center rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition hover:text-foreground sm:w-auto"
             >
-              Cancel
+              Explore Agents
             </button>
             <Link
               href="/pricing"
               className="inline-flex w-full items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 sm:w-auto"
               onClick={() => setUpgradeOpen(false)}
             >
-              Upgrade to Pro
+              Book a Demo
             </Link>
           </DialogFooter>
         </DialogContent>

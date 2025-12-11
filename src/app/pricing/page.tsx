@@ -16,13 +16,13 @@ export default function PricingPage() {
       <main className="mx-auto flex w-full max-w-6xl flex-col gap-16 px-4 pb-24 md:px-6">
         <section className="space-y-6 text-center">
           <span className="text-xs font-semibold tracking-[0.4em] text-slate-500">
-            PRICING
+            AI OPERATIONS LAYER
           </span>
           <h1 className="text-4xl font-semibold tracking-tight text-slate-900 md:text-5xl">
-            Simple pricing for AI agents
+            Simple pricing for managed AI automations
           </h1>
           <p className="mx-auto max-w-2xl text-base text-slate-600 md:text-lg">
-            Creators set prices for their agents. PantherIQ adds small platform fees to cover hosting, billing, and support.
+            Choose a PantherIQ plan for your business. Our transparent platform fee covers hosting, monitoring, billing, and day-to-day operations for the agents we run on your behalf.
           </p>
         </section>
 
@@ -32,13 +32,13 @@ export default function PricingPage() {
               <div className="space-y-2">
                 <h2 className="text-lg font-semibold text-slate-900">Explorer</h2>
                 <p className="text-sm text-slate-500">
-                  Test-drive community agents before you launch.
+                  Test PantherIQ automations with demo data or low-risk workflows.
                 </p>
               </div>
               <div className="text-3xl font-semibold text-slate-900">Free</div>
               <ul className="space-y-3 text-sm text-slate-600">
-                <li>Browse and trial agents with demo data</li>
-                <li>Save favorites to your workspace</li>
+                <li>Browse curated agents and run sandbox demos</li>
+                <li>Validate use cases with limited workloads</li>
                 <li>Email support within 72 hours</li>
               </ul>
             </div>
@@ -52,14 +52,14 @@ export default function PricingPage() {
               <div className="space-y-2">
                 <h2 className="text-lg font-semibold text-white">Pro</h2>
                 <p className="text-sm text-slate-200">
-                  Launch production agents with advanced controls.
+                  Launch production agents with live integrations and higher usage limits.
                 </p>
               </div>
               <div className="text-3xl font-semibold text-white">$49 / month</div>
               <ul className="space-y-3 text-sm text-slate-200">
-                <li>Deploy unlimited agents with live integrations</li>
-                <li>Role-based access and usage analytics</li>
-                <li>Priority email support within 24 hours</li>
+                <li>Deploy unlimited managed agents across sales, support, and ops</li>
+                <li>Role-based access, usage analytics, and outcome reporting</li>
+                <li>Priority support with 24-hour response times</li>
               </ul>
             </div>
             <button className="mt-10 inline-flex w-full items-center justify-center rounded-xl bg-white px-4 py-3 text-sm font-semibold text-black transition hover:bg-slate-200">
@@ -72,14 +72,14 @@ export default function PricingPage() {
               <div className="space-y-2">
                 <h2 className="text-lg font-semibold text-slate-900">Teams</h2>
                 <p className="text-sm text-slate-500">
-                  Enterprise controls for growing agent practices.
+                  Multi-seat access, security reviews, and a dedicated success manager.
                 </p>
               </div>
               <div className="text-3xl font-semibold text-slate-900">Contact sales</div>
               <ul className="space-y-3 text-sm text-slate-600">
-                <li>Custom usage tiers and security reviews</li>
-                <li>Dedicated success manager</li>
-                <li>SLAs and consolidated billing</li>
+                <li>Custom usage tiers, SSO, and audit-ready controls</li>
+                <li>Named PantherIQ automation success manager</li>
+                <li>Enterprise SLAs and consolidated billing</li>
               </ul>
             </div>
             <button className="mt-10 inline-flex w-full items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition hover:border-slate-400 hover:text-slate-900">
@@ -93,26 +93,34 @@ export default function PricingPage() {
           <div className="space-y-8">
             <div className="space-y-2">
               <h3 className="text-lg font-semibold text-slate-900">
-                How are agent prices determined?
+                How do plan prices relate to agents and workflows?
               </h3>
               <p className="text-sm text-slate-600">
-                Each creator sets their own price based on features, integrations, and support levels. PantherIQ adds a small transparent platform fee at checkout to keep the marketplace running.
+                Explorer is ideal for evaluating one or two automations with demo environments. Pro unlocks unlimited managed agents running against your live tools. Teams layers on governance so multiple departments can share automations without paying per seat.
               </p>
             </div>
             <div className="space-y-2">
               <h3 className="text-lg font-semibold text-slate-900">
-                What is your refund policy?
+                How does usage-based billing or overages work?
               </h3>
               <p className="text-sm text-slate-600">
-                Most agents include a 7-day refund window. If you are unsatisfied, submit a refund request from your dashboard and we will coordinate directly with the creator to resolve it quickly.
+                Every plan includes a baseline number of automation runs. If you exceed those thresholds, we notify you and bill overages at the same transparent rate, or help you upgrade tiers before the next cycle.
               </p>
             </div>
             <div className="space-y-2">
               <h3 className="text-lg font-semibold text-slate-900">
-                How do creators receive payouts?
+                What is your performance guarantee and refund policy?
               </h3>
               <p className="text-sm text-slate-600">
-                Payouts are handled through Stripe. Earnings are transferred on a rolling 7-day schedule after deducting platform fees and any applicable chargebacks.
+                PantherIQ-managed agents include a 7-day performance guarantee. If an automation fails to deliver as scoped, request a refund from your dashboard and our team will either remediate or credit your account immediately.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold text-slate-900">
+                How is billing processed?
+              </h3>
+              <p className="text-sm text-slate-600">
+                All plans bill through Stripe for security and compliance. You receive itemized invoices covering the base plan plus any usage adjustments, and Teams customers can consolidate multiple workspaces under one contract.
               </p>
             </div>
           </div>
@@ -124,14 +132,14 @@ export default function PricingPage() {
               📘
             </span>
             <p className="text-sm leading-relaxed md:text-base">
-              Need the full breakdown for creators? Read the{" "}
+              Need a deeper breakdown of what&apos;s included in each plan? Read the{" "}
               <Link
                 href="/docs/pricing-plans"
                 className="inline-flex items-center text-sm font-semibold text-slate-900 underline decoration-slate-300 underline-offset-4 transition hover:decoration-slate-500 md:text-base"
               >
                 Pricing &amp; Plans guide
               </Link>{" "}
-              in Docs.
+              in Docs for full feature comparisons.
             </p>
           </div>
         </section>

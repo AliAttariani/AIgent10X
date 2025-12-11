@@ -1,17 +1,17 @@
-import Link from "next/link";
+import "@/app/globals.css";
+import DocsSidebar from "@/components/docs/DocsSidebar";
 import type { ReactNode } from "react";
 
 export default function DocsLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="mx-auto w-full max-w-4xl px-6 pb-24 pt-16">
-      <Link
-        href="/browse"
-        className="mb-10 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition hover:text-primary"
-      >
-        <span aria-hidden>&larr;</span>
-        Back to Browse
-      </Link>
-      {children}
+    <div className="flex min-h-screen">
+      {/* Sidebar */}
+      <aside className="hidden w-64 border-r bg-white p-6 md:block">
+        <DocsSidebar />
+      </aside>
+
+      {/* Content Area */}
+      <main className="mx-auto flex-1 max-w-4xl p-8">{children}</main>
     </div>
   );
 }

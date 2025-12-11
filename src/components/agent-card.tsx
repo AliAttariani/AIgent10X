@@ -38,9 +38,9 @@ export function AgentCard({
   isFeatured,
 }: AgentCardProps) {
   const pricingLabelMap: Record<AgentPricingType, string> = {
-    free: "Free",
-    "one-time": "One-time",
-    subscription: "Subscription",
+    free: "Demo mode",
+    "one-time": "Fixed package",
+    subscription: "Managed plan",
   };
 
   const imgSrc = thumbnail || "https://placehold.co/600x400/png";
@@ -50,7 +50,7 @@ export function AgentCard({
   return (
     <Card className="flex h-full flex-col overflow-hidden">
       <CardHeader className="p-0">
-        <Link href={`/agents/${slug}`} className="relative block">
+        <Link href={`/agent/${slug}`} className="relative block">
           <Image
             src={imgSrc}
             alt={title}
@@ -62,7 +62,7 @@ export function AgentCard({
           />
           {verified ? (
             <Badge className="absolute left-3 top-3 bg-emerald-600 text-white">
-              Verified
+              Verified automation
             </Badge>
           ) : null}
           {isFeatured ? (
@@ -85,12 +85,12 @@ export function AgentCard({
             </Badge>
           ) : null}
           {isProCreator ? (
-            <Badge className="bg-black text-white">Pro Creator</Badge>
+            <Badge className="bg-black text-white">Run by PantherIQ</Badge>
           ) : null}
         </div>
         <div className="space-y-1">
           <CardTitle className="text-lg font-semibold">
-            <Link href={`/agents/${slug}`} className="hover:underline">
+            <Link href={`/agent/${slug}`} className="hover:underline">
               {title}
             </Link>
           </CardTitle>
@@ -103,10 +103,10 @@ export function AgentCard({
       </CardContent>
       <CardFooter className="p-5 pt-0">
         <Link
-          href={`/agents/${slug}`}
+          href={`/agent/${slug}`}
           className={buttonVariants({ className: "w-full justify-center" })}
         >
-          View details
+          View automation
         </Link>
       </CardFooter>
     </Card>

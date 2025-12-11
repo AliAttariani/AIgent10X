@@ -66,8 +66,10 @@ export default function SiteHeader() {
           <Link
             href="/creator/agents/new"
             className="hidden h-11 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground shadow transition hover:bg-primary/90 sm:inline-flex"
+            aria-label="Book a Demo"
+            title="Book a Demo"
           >
-            List your Agent
+            Book a Demo
           </Link>
           <Button
             variant="ghost"
@@ -111,8 +113,10 @@ export default function SiteHeader() {
                 href="/creator/agents/new"
                 className="inline-flex h-12 items-center rounded-lg bg-primary px-3 text-base font-semibold text-primary-foreground transition hover:bg-primary/90"
                 onClick={() => setIsMenuOpen(false)}
+                aria-label="Book a Demo"
+                title="Book a Demo"
               >
-                List your Agent
+                Book a Demo
               </Link>
               <SignedOut>
                 <Link

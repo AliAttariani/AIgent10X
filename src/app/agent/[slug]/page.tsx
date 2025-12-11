@@ -1,56 +1,49 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import type { FeaturedAgent } from "@/data/featured-agents";
-import { featuredAgents } from "@/data/featured-agents";
+import { notFound } from "next/navigation";
+import { getManagedAutomationBySlug } from "@/data/automations";
 import { AgentDetailClient } from "./AgentDetailClient";
 
 type AgentPageParams = { slug: string };
 
 interface AgentPageProps {
-  params: Promise<AgentPageParams>;
-}
-
-function findAgentBySlug(slug: string): (FeaturedAgent & { gallery?: string[] }) | undefined {
-  return featuredAgents.find((agent) => agent.slug === slug);
+  params: Promise<AgentPageParams> | AgentPageParams;
 }
 
 export async function generateMetadata({ params }: AgentPageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const agent = findAgentBySlug(slug);
+  const { slug } = await Promise.resolve(params);
+  const automation = getManagedAutomationBySlug(slug);
 
-  if (!agent) {
+  if (!automation) {
     return {
-      title: "Agent Not Found – AIgent10X",
-      description: "Browse verified AI agents on AIgent10X.",
+      title: "Automation Not Found – AIgent10X",
+      description: "Browse verified AI automations on AIgent10X.",
     };
   }
 
   return {
-    title: `${agent.title} – AIgent10X`,
-    description: agent.tagline,
+    title: `${automation.name} – AIgent10X`,
+    description: automation.heroTagline || automation.summary,
   };
 }
 
 export default async function AgentPage({ params }: AgentPageProps) {
-  const { slug } = await params;
-  const agent = findAgentBySlug(slug);
-
-  if (!agent) {
-    return (
-      <main className="mx-auto flex min-h-[60vh] w-full max-w-6xl flex-col items-center px-4 pb-24 pt-16 text-center text-lg font-semibold text-muted-foreground md:px-6">
-        <div className="w-full text-left">
-          <Link
-            href="/browse"
-            className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition hover:text-foreground"
-          >
-            <span aria-hidden>←</span>
-            Back to Browse
-          </Link>
-        </div>
-        <p className="mt-16">Not found</p>
-      </main>
-    );
+  const { slug } = await Promise.resolve(params);
+  const automation = getManagedAutomationBySlug(slug);
+  if (!automation) {
+    notFound();
   }
 
-  return <AgentDetailClient agent={agent} showBackLink />;
+  const detailContent = {
+    heroTagline: automation.heroTagline,
+    heroSummary: automation.outcomeSummary,
+    whoItsFor: automation.whoItsFor,
+    outcomes: automation.outcomes,
+    workflows: automation.includedWorkflows,
+    integrations: automation.integrations,
+    metrics: automation.metrics,
+    launchPlan: automation.launchPlan,
+    guaranteeLabel: automation.guaranteeLabel,
+  };
+
+  return <AgentDetailClient automation={automation} detailContent={detailContent} showBackLink />;
 }

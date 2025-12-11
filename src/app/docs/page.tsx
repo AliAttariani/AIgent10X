@@ -1,54 +1,56 @@
 import Link from "next/link";
 
-const creatorLinks = [
-  { href: "/docs/creator/getting-started", label: "Getting started as a creator" },
-  { href: "/docs/creator/submitting", label: "Submitting a new agent" },
-  { href: "/docs/pricing-plans", label: "Pricing & Plans" },
-  { href: "/docs/legal/creator-agreement", label: "Creator Agreement & policies" },
+const onboardingLinks = [
+  { href: "/docs/onboarding/getting-started", label: "Getting started" },
+  { href: "/docs/onboarding/workspace-and-roles", label: "Workspace & roles" },
+  { href: "/docs/onboarding/billing-and-usage", label: "Billing & usage" },
+  { href: "/docs/onboarding/running-your-first-automation", label: "Running your first automation" },
 ];
-// TODO: Create routes for /docs/creator/getting-started and /docs/creator/submitting.
-// TODO: Create route for /docs/legal/creator-agreement.
 
-const teamLinks = [
-  { href: "/docs/workspaces/roles", label: "Workspace & roles" },
-  { href: "/docs/security/overview", label: "Security & compliance overview" },
-  { href: "/docs/billing/manage", label: "Managing billing & payouts" },
-  { href: "/docs/support/incident-reporting", label: "Incident reporting & support" },
+const automationLinks = [
+  { href: "/docs/automations/lead-generation", label: "Lead generation automation" },
+  { href: "/docs/automations/customer-support", label: "Customer support automation" },
+  { href: "/docs/automations/content", label: "Content automation" },
+  { href: "/docs/automations/workflow", label: "Workflow automations" },
+  { href: "/docs/automations/research", label: "Research & analysis automations" },
 ];
-// TODO: Create routes for team and operator documentation listed above.
 
 const developerLinks = [
-  { href: "/docs/api/overview", label: "PantherIQ API overview" },
-  { href: "/docs/api/webhooks", label: "Webhook events" },
-  { href: "/docs/api/sandbox", label: "Testing in sandbox" },
-  { href: "/docs/api/examples", label: "Examples & SDKs" },
+  { href: "/docs/dev-security-ops/api-overview", label: "API overview" },
+  { href: "/docs/dev-security-ops/authentication", label: "Authentication" },
+  { href: "/docs/dev-security-ops/trigger-automations", label: "Trigger automations" },
+  { href: "/docs/dev-security-ops/result-webhooks", label: "Result webhooks" },
+  { href: "/docs/dev-security-ops/sandbox-testing", label: "Sandbox testing" },
+  { href: "/docs/dev-security-ops/examples", label: "Examples" },
 ];
-// TODO: Create routes for developer documentation listed above.
 
 const keyResources = [
   {
-    title: "Pricing & Plans",
-    description:
-      "How plans map to your growth stage and what the marketplace keeps to stay sustainable.",
-    href: "/docs/pricing-plans",
+    title: "Getting started",
+    description: "Set up PantherIQ, connect integrations, and run your first automation.",
+    href: "/docs/onboarding/getting-started",
   },
   {
-    title: "Creator Agreement",
-    description: "Legal terms for listing agents on PantherIQ.",
-    href: "/docs/legal/creator-agreement",
+    title: "Outcomes & guarantees",
+    description: "Benchmark ROI, preview week-one results, and review contractual guarantees.",
+    href: "/docs/outcomes",
   },
   {
-    title: "Security & incident reporting",
-    description: "How we protect customers and how to reach security@pantheriq.ai.",
-    href: "/docs/security/incident-reporting",
+    title: "Automation playbooks",
+    description: "See workflow diagrams plus expected outcomes for every managed automation.",
+    href: "/docs/automations",
   },
   {
-    title: "Refunds & payouts",
-    description: "How refunds work, payout timelines, and how Stripe handles transfers.",
-    href: "/docs/billing/refunds-payouts",
+    title: "Compliance",
+    description: "Review data protection, retention, encryption, and regional routing commitments.",
+    href: "/docs/compliance",
+  },
+  {
+    title: "Support & incident response",
+    description: "Understand SLAs, escalation paths, and 24/7 support coverage.",
+    href: "/docs/support",
   },
 ];
-// TODO: Create routes for legal, security, and billing resources where they do not yet exist.
 
 export default function DocsPage() {
   return (
@@ -56,8 +58,8 @@ export default function DocsPage() {
       <header className="space-y-5">
         <h1 className="text-4xl font-semibold tracking-tight">PantherIQ Docs</h1>
         <p className="max-w-2xl text-sm text-muted-foreground md:text-base">
-          Everything you need to build, launch, and operate AI agents on PantherIQ. Start with the basics, then go deeper into
-          pricing, security, and developer APIs.
+          PantherIQ is the AI operations layer that designs, runs, and maintains automations for your business.
+          Use these docs to understand the model, launch playbooks, and keep teams aligned on security, usage, and support.
         </p>
       </header>
 
@@ -65,18 +67,18 @@ export default function DocsPage() {
         <h2 className="text-xl font-semibold">Choose your track</h2>
         <div className="grid gap-6 md:grid-cols-3">
           <TrackCard
-            title="For creators"
-            description="List agents, understand marketplace rules, and grow your catalog with clear pricing."
-            links={creatorLinks}
+            title="Onboarding"
+            description="Foundations for business users bringing PantherIQ into production."
+            links={onboardingLinks}
           />
           <TrackCard
-            title="For teams & ops"
-            description="Coordinate multi-seat access, stay compliant, and keep billing and support in sync."
-            links={teamLinks}
+            title="Automation playbooks"
+            description="Overview of the managed automations we operate end to end."
+            links={automationLinks}
           />
           <TrackCard
-            title="For developers"
-            description="Integrate PantherIQ APIs, automate workflows, and run safe experiments in sandbox."
+            title="Dev, security, & ops"
+            description="APIs, webhooks, and governance for technical teams."
             links={developerLinks}
           />
         </div>
@@ -99,6 +101,33 @@ export default function DocsPage() {
               </Link>
             </article>
           ))}
+        </div>
+      </section>
+
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-xl font-semibold">Need assistance?</h2>
+          <p className="text-sm text-muted-foreground">Report incidents, request help from our operators, or escalate a ticket.</p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <article className="rounded-2xl border border-border bg-card/70 p-6 shadow-sm">
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold">Compliance & data protection</h3>
+              <p className="text-sm text-muted-foreground">Review encryption, retention, GDPR posture, and cross-region safeguards.</p>
+            </div>
+            <Link href="/docs/compliance" className="mt-4 inline-flex text-sm font-medium text-primary transition hover:underline">
+              Visit compliance docs
+            </Link>
+          </article>
+          <article className="rounded-2xl border border-border bg-card/70 p-6 shadow-sm">
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold">Support & incident reporting</h3>
+              <p className="text-sm text-muted-foreground">Find response times, escalation paths, and 24/7 contacts for your plan.</p>
+            </div>
+            <Link href="/docs/support" className="mt-4 inline-flex text-sm font-medium text-primary transition hover:underline">
+              Visit support docs
+            </Link>
+          </article>
         </div>
       </section>
     </main>
