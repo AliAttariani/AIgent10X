@@ -1,5 +1,10 @@
 import { processIncomingLead, ProcessResult } from "./processIncomingLead";
-import { getCRMProvider } from "../crm";
+import type { RawLead, EnrichedLead } from "./enrichment";
+import type { QualificationResult } from "./qualification";
+import type { Task } from "./tasks";
+import type { Deal } from "./deals";
+import { createHubSpotClient, type HubSpotClient } from "../crm/hubspot";
+import type { Lead as CRMLead } from "../crm/types";
 
 export const LEAD_FLOW_AUTOPILOT_SLUG = "lead-flow-autopilot";
 
@@ -31,13 +36,28 @@ export interface LeadFlowRunResult {
   type: "run";
   slug: typeof LEAD_FLOW_AUTOPILOT_SLUG;
   summary: LeadFlowSummary;
-  runs: ProcessResult[];
+  runs: LeadFlowRunDetail[];
   crmSync?: {
     provider: string;
     contactsSynced: number;
     tasksCreated: number;
     dealsCreated: number;
   };
+}
+
+export interface LeadFlowTaskResult extends Task {
+  hubspotTaskId?: string;
+}
+
+export interface LeadFlowDealResult extends Deal {
+  hubspotDealId?: string;
+}
+
+export interface LeadFlowRunDetail extends ProcessResult {
+  contactId?: string;
+  tasks: LeadFlowTaskResult[];
+  deal: LeadFlowDealResult | null;
+  errors?: string[];
 }
 
 /**
@@ -74,7 +94,7 @@ const DEMO_LEADS = [
 /**
  * Helper: از مجموعه run-ها یک summary می‌سازد.
  */
-function buildSummary(runs: ProcessResult[]): LeadFlowSummary {
+function buildSummary<T extends { qualification: QualificationResult }>(runs: T[]): LeadFlowSummary {
   const inboundLeadsProcessed = runs.length;
   const qualifiedLeads = runs.filter((r) => r.qualification.isQualified).length;
 
@@ -140,83 +160,179 @@ export async function demoLeadFlowAutopilot(): Promise<LeadFlowDemoResult> {
  *   leads: LeadLike[]
  * }
  */
-export interface LeadFlowRunInput {
-  leads: unknown[];
+export interface LeadFlowRunRequest {
+  leads: RawLead[];
 }
+
+/**
+ * @deprecated Use LeadFlowRunRequest instead.
+ */
+export type LeadFlowRunInput = LeadFlowRunRequest;
 
 /**
  * تابع اصلی run که route `/api/automations/[slug]/run` ازش استفاده می‌کنه.
  */
 export async function runLeadFlowAutopilot(
-  payload: LeadFlowRunInput,
+  payload: LeadFlowRunRequest,
 ): Promise<LeadFlowRunResult> {
-  const leads = Array.isArray(payload?.leads) ? payload.leads : [];
+  const leads = normalizeRunLeads(payload);
+  const hubspot = createHubSpotClient();
 
-  const runs: ProcessResult[] = [];
-  const crm = getCRMProvider(); // مثل HubSpot، اما abstraction-ش تو ../crm هست
-
+  const runs: LeadFlowRunDetail[] = [];
   let contactsSynced = 0;
   let tasksCreated = 0;
   let dealsCreated = 0;
 
   for (const rawLead of leads) {
-    // 1) همهٔ منطق داخل engine
-    const run = await processIncomingLead(rawLead);
-    runs.push(run);
+    const baseResult = await processIncomingLead(rawLead);
+    const detail = createRunDetail(baseResult);
+    runs.push(detail);
 
-    // 2) اتصال به CRM – اگر provider تعریف شده بود
-    if (crm) {
-      try {
-        // این قسمت رو با شکل دقیق متدهای CRM خودت تطبیق بده.
-        // ما از type-guard ساده استفاده می‌کنیم تا TS / ESLint اذیت نشن.
-        const contactPayload = run.enrichedLead;
-
-        if ("upsertContact" in crm && typeof crm.upsertContact === "function") {
-          const contactResult = await crm.upsertContact(contactPayload);
-          if (contactResult) {
-            contactsSynced += 1;
-          }
-        }
-
-        if (run.tasks.length > 0) {
-          if ("createTasks" in crm && typeof crm.createTasks === "function") {
-            await crm.createTasks(run.tasks);
-            tasksCreated += run.tasks.length;
-          }
-        }
-
-        if (run.deal) {
-          if ("createDeal" in crm && typeof crm.createDeal === "function") {
-            await crm.createDeal(run.deal);
-            dealsCreated += 1;
-          }
-        }
-      } catch (error) {
-        // اینجا فقط swallow می‌کنیم تا یک lead خراب کل run رو ندازه
-        // تو مرحلهٔ بعد می‌تونیم logging متمرکز اضافه کنیم.
-        console.error("[LeadFlowAutopilot] CRM sync failed for lead:", error);
-      }
+    const { counts, errors } = await syncLeadWithHubSpot(hubspot, detail);
+    contactsSynced += counts.contacts;
+    tasksCreated += counts.tasks;
+    dealsCreated += counts.deals;
+    if (errors.length) {
+      detail.errors = errors;
     }
   }
 
   const summary = buildSummary(runs);
 
-  const result: LeadFlowRunResult = {
+  return {
     type: "run",
     slug: LEAD_FLOW_AUTOPILOT_SLUG,
     summary,
     runs,
-  };
-
-  if (crm) {
-    const providerName = (crm as { name?: string }).name ?? "crm";
-    result.crmSync = {
-      provider: providerName,
+    crmSync: {
+      provider: "hubspot",
       contactsSynced,
       tasksCreated,
       dealsCreated,
-    };
+    },
+  };
+}
+
+type SyncCounts = {
+  contacts: number;
+  tasks: number;
+  deals: number;
+};
+
+function normalizeRunLeads(input: LeadFlowRunRequest | null | undefined): RawLead[] {
+  if (!input || !Array.isArray(input.leads)) {
+    return [];
+  }
+  return input.leads.filter((lead): lead is RawLead => typeof lead === "object" && lead !== null);
+}
+
+function createRunDetail(result: ProcessResult): LeadFlowRunDetail {
+  return {
+    ...result,
+    tasks: result.tasks.map((task) => ({ ...task })),
+    deal: result.deal ? { ...result.deal } : null,
+  };
+}
+
+async function syncLeadWithHubSpot(
+  client: HubSpotClient,
+  detail: LeadFlowRunDetail,
+): Promise<{ counts: SyncCounts; errors: string[] }> {
+  const counts: SyncCounts = { contacts: 0, tasks: 0, deals: 0 };
+  const errors: string[] = [];
+
+  let crmLead: CRMLead;
+  try {
+    crmLead = buildCrmLead(detail);
+  } catch (error) {
+    errors.push(formatLeadError("prepare lead", error));
+    return { counts, errors };
   }
 
-  return result;
+  let contactId: string;
+  try {
+    const contact = await client.upsertContact(crmLead);
+    contactId = contact.id;
+    detail.contactId = contactId;
+    counts.contacts = 1;
+  } catch (error) {
+    errors.push(formatLeadError("contact upsert", error));
+    return { counts, errors };
+  }
+
+  for (const task of detail.tasks) {
+    try {
+      const summary = buildTaskSummary(task, detail.enrichedLead);
+      const taskResult = await client.createFollowUpTask({
+        contactId,
+        summary,
+        dueInDays: task.dueInDays,
+      });
+      task.hubspotTaskId = taskResult.id;
+      counts.tasks += 1;
+    } catch (error) {
+      errors.push(formatLeadError(`task: ${task.title}`, error));
+    }
+  }
+
+  if (detail.deal) {
+    try {
+      const dealResult = await client.createOrUpdateDeal({
+        contactId,
+        amount: detail.deal.amount,
+        pipelineStage: mapDealStage(detail.deal, detail.qualification),
+      });
+      detail.deal.hubspotDealId = dealResult.id;
+      counts.deals = 1;
+    } catch (error) {
+      errors.push(formatLeadError("deal creation", error));
+    }
+  }
+
+  return { counts, errors };
+}
+
+function buildCrmLead(detail: LeadFlowRunDetail): CRMLead {
+  const email =
+    (typeof detail.enrichedLead.normalizedEmail === "string" && detail.enrichedLead.normalizedEmail) ||
+    (typeof detail.enrichedLead.email === "string" && detail.enrichedLead.email) ||
+    (typeof detail.rawLead.email === "string" && detail.rawLead.email) ||
+    null;
+
+  if (!email) {
+    throw new Error("Lead must include an email address to sync with HubSpot.");
+  }
+
+  return {
+    email,
+    firstName: typeof detail.enrichedLead.firstName === "string" ? detail.enrichedLead.firstName : undefined,
+    lastName: typeof detail.enrichedLead.lastName === "string" ? detail.enrichedLead.lastName : undefined,
+    company: typeof detail.enrichedLead.company === "string" ? detail.enrichedLead.company : undefined,
+    source: typeof detail.enrichedLead.source === "string" ? detail.enrichedLead.source : undefined,
+    status: detail.qualification.isQualified ? "qualified" : "disqualified",
+    notes: detail.qualification.reason,
+  };
+}
+
+function buildTaskSummary(task: Task, lead: EnrichedLead): string {
+  if (task.description) {
+    return `${task.title} — ${task.description}`;
+  }
+  const target = lead.fullName ?? lead.email ?? "the lead";
+  return `${task.title} — Follow up with ${target}`;
+}
+
+function mapDealStage(
+  deal: LeadFlowDealResult,
+  qualification: QualificationResult,
+): string | undefined {
+  if (deal.stage) {
+    return deal.stage;
+  }
+  return qualification.isQualified ? "appointmentscheduled" : "closedlost";
+}
+
+function formatLeadError(context: string, error: unknown): string {
+  const base = error instanceof Error ? error.message : String(error);
+  return `[${context}] ${base}`;
 }

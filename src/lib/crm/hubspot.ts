@@ -1,6 +1,8 @@
 import type { Lead } from "./types";
 
-export const HUBSPOT_BASE_URL = process.env.HUBSPOT_BASE_URL ?? "https://api.hubapi.com";
+export const HUBSPOT_BASE_URL =
+  process.env.HUBSPOT_BASE_URL ?? "https://api.hubapi.com";
+
 const HUBSPOT_PRIVATE_ACCESS_TOKEN = process.env.HUBSPOT_PRIVATE_ACCESS_TOKEN;
 
 export type HubSpotRunContext = Record<string, unknown>;
@@ -16,8 +18,32 @@ type ContactSearchResponse = {
   }>;
 };
 
+// فیلدهایی که اجازه داریم روی Contact آپدیت/ست کنیم
+type HubSpotContactUpdateProperties = {
+  email?: string;
+  firstname?: string;
+  lastname?: string;
+  company?: string;
+  lifecyclestage?: string;
+};
+
+// لیست lifecycle stageهای مجاز در HubSpot
+const LIFECYCLE_STAGE_WHITELIST = new Set<string>([
+  "subscriber",
+  "lead",
+  "marketingqualifiedlead",
+  "salesqualifiedlead",
+  "opportunity",
+  "customer",
+  "evangelist",
+  "other",
+]);
+
 export interface HubSpotClient {
-  upsertContact(lead: Lead, context?: HubSpotRunContext): Promise<{ id: string }>;
+  upsertContact(
+    lead: Lead,
+    context?: HubSpotRunContext,
+  ): Promise<{ id: string }>;
   createOrUpdateDeal(input: {
     contactId: string;
     amount?: number;
@@ -42,13 +68,21 @@ export function createHubSpotClient(): HubSpotClient {
   return {
     async upsertContact(lead, context) {
       validateLead(lead);
-      const existingId = await findContactIdByEmail(token, lead.email, context);
+
+      const existingId = await findContactIdByEmail(
+        token,
+        lead.email,
+        context,
+      );
+
       if (existingId) {
-        await updateContact(token, existingId, lead, context);
+        // ⬇️ نسخه‌ی جدید و امن برای آپدیت Contact
+        await updateContactForLead(token, existingId, lead, context);
         return { id: existingId };
       }
-      const created = await createContact(token, lead, context);
-      return { id: created };
+
+      const createdId = await createContact(token, lead, context);
+      return { id: createdId };
     },
 
     async createOrUpdateDeal(input) {
@@ -63,13 +97,43 @@ export function createHubSpotClient(): HubSpotClient {
   } satisfies HubSpotClient;
 }
 
+// ----------------- Helpers -----------------
+
 function validateLead(lead: Lead): void {
   if (!lead.email) {
     throw new Error("Lead email is required for HubSpot contact operations.");
   }
 }
 
-async function findContactIdByEmail(token: string, email: string, _context?: HubSpotRunContext): Promise<string | null> {
+/**
+ * اگر مقدار status در Lead با lifecycle stageهای HubSpot سازگار باشد، برمی‌گرداند.
+ * در غیر این صورت یا undefined برمی‌گرداند، یا بعضی aliasها را map می‌کند.
+ */
+function mapLeadStatusToLifecycleStage(
+  status?: string | null,
+): string | undefined {
+  if (!status) return undefined;
+  const normalized = status.toLowerCase().trim();
+
+  if (LIFECYCLE_STAGE_WHITELIST.has(normalized)) {
+    return normalized;
+  }
+
+  // چند تا map رایج
+  if (normalized === "mql") return "marketingqualifiedlead";
+  if (normalized === "sql" || normalized === "qualified") {
+    return "salesqualifiedlead";
+  }
+
+  // اگر معلوم نیست، دست نمی‌زنیم که ۴۰۰ نخوریم
+  return undefined;
+}
+
+async function findContactIdByEmail(
+  token: string,
+  email: string,
+  _context?: HubSpotRunContext,
+): Promise<string | null> {
   const payload = {
     filterGroups: [
       {
@@ -85,31 +149,110 @@ async function findContactIdByEmail(token: string, email: string, _context?: Hub
     properties: ["email"],
   } satisfies Record<string, unknown>;
 
-  const response = await hubspotRequest<ContactSearchResponse>(token, "/crm/v3/objects/contacts/search", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  }, _context);
+  const response = await hubspotRequest<ContactSearchResponse>(
+    token,
+    "/crm/v3/objects/contacts/search",
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    },
+    _context,
+  );
 
   return response.results?.[0]?.id ?? null;
 }
 
-async function createContact(token: string, lead: Lead, _context?: HubSpotRunContext): Promise<string> {
-  const response = await hubspotRequest<HubSpotIdResponse>(token, "/crm/v3/objects/contacts", {
-    method: "POST",
-    body: JSON.stringify({
-      properties: buildContactProperties(lead),
-    }),
-  }, _context);
+// ----------------- Contact -----------------
+
+// برای ایجاد کانتکت جدید
+function buildContactCreateProperties(
+  lead: Lead,
+): HubSpotContactUpdateProperties {
+  const props: HubSpotContactUpdateProperties = {
+    email: lead.email,
+    firstname: lead.firstName,
+    lastname: lead.lastName,
+    company: lead.company,
+  };
+
+  // برای کانتکت جدید، اگر status سازگار بود از همان استفاده می‌کنیم، وگرنه "lead"
+  const lifecycle =
+    mapLeadStatusToLifecycleStage(lead.status ?? undefined) ?? "lead";
+
+  props.lifecyclestage = lifecycle;
+  return props;
+}
+
+// برای آپدیت کانتکت موجود — احتیاطی‌تر (فقط اگر lifecycle معتبر باشد)
+function buildContactUpdateProperties(
+  lead: Lead,
+): HubSpotContactUpdateProperties {
+  const props: HubSpotContactUpdateProperties = {};
+
+  if (lead.email) props.email = lead.email;
+  if (lead.firstName) props.firstname = lead.firstName;
+  if (lead.lastName) props.lastname = lead.lastName;
+  if (lead.company) props.company = lead.company;
+
+  const lifecycle = mapLeadStatusToLifecycleStage(lead.status ?? undefined);
+  if (lifecycle) {
+    props.lifecyclestage = lifecycle;
+  }
+
+  return props;
+}
+
+async function createContact(
+  token: string,
+  lead: Lead,
+  _context?: HubSpotRunContext,
+): Promise<string> {
+  const properties = buildContactCreateProperties(lead);
+
+  const response = await hubspotRequest<HubSpotIdResponse>(
+    token,
+    "/crm/v3/objects/contacts",
+    {
+      method: "POST",
+      body: JSON.stringify({ properties }),
+    },
+    _context,
+  );
 
   return response.id;
 }
 
-async function updateContact(token: string, contactId: string, lead: Lead, _context?: HubSpotRunContext): Promise<void> {
-  await hubspotRequest(token, `/crm/v3/objects/contacts/${contactId}`, {
-    method: "PATCH",
-    body: JSON.stringify({ properties: buildContactProperties(lead) }),
-  }, _context);
+/**
+ * نسخه‌ی جدید و امن updateContact:
+ * - فقط فیلدهای مشخص را می‌فرستد.
+ * - lifecycle stage را فقط زمانی ست می‌کند که مقدار معتبر باشد.
+ * - اگر هیچ فیلدی برای آپدیت نبود، درخواست ارسال نمی‌شود.
+ */
+async function updateContactForLead(
+  token: string,
+  contactId: string,
+  lead: Lead,
+  _context?: HubSpotRunContext,
+): Promise<void> {
+  const properties = buildContactUpdateProperties(lead);
+
+  if (Object.keys(properties).length === 0) {
+    // چیزی برای آپدیت نیست؛ بی‌صدا برگردیم
+    return;
+  }
+
+  await hubspotRequest(
+    token,
+    `/crm/v3/objects/contacts/${encodeURIComponent(contactId)}`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({ properties }),
+    },
+    _context,
+  );
 }
+
+// ----------------- Deal & Task -----------------
 
 async function createDeal(
   token: string,
@@ -136,10 +279,15 @@ async function createDeal(
     ],
   } satisfies Record<string, unknown>;
 
-  const response = await hubspotRequest<HubSpotIdResponse>(token, "/crm/v3/objects/deals", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  }, context);
+  const response = await hubspotRequest<HubSpotIdResponse>(
+    token,
+    "/crm/v3/objects/deals",
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    },
+    context,
+  );
 
   return response.id;
 }
@@ -149,7 +297,10 @@ async function createTask(
   input: { contactId: string; summary: string; dueInDays?: number },
   context?: HubSpotRunContext,
 ): Promise<string> {
-  const dueDate = new Date(Date.now() + (input.dueInDays ?? 2) * 24 * 60 * 60 * 1000).toISOString();
+  const dueDate = new Date(
+    Date.now() + (input.dueInDays ?? 2) * 24 * 60 * 60 * 1000,
+  ).toISOString();
+
   const payload = {
     properties: {
       hs_task_subject: input.summary,
@@ -171,23 +322,20 @@ async function createTask(
     ],
   } satisfies Record<string, unknown>;
 
-  const response = await hubspotRequest<HubSpotIdResponse>(token, "/crm/v3/objects/tasks", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  }, context);
+  const response = await hubspotRequest<HubSpotIdResponse>(
+    token,
+    "/crm/v3/objects/tasks",
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    },
+    context,
+  );
 
   return response.id;
 }
 
-function buildContactProperties(lead: Lead): Record<string, string | undefined> {
-  return {
-    email: lead.email,
-    firstname: lead.firstName,
-    lastname: lead.lastName,
-    company: lead.company,
-    lifecyclestage: lead.status ?? "lead",
-  };
-}
+// ----------------- Core request helper -----------------
 
 async function hubspotRequest<T>(
   token: string,
@@ -196,6 +344,7 @@ async function hubspotRequest<T>(
   _context?: HubSpotRunContext,
 ): Promise<T> {
   void _context;
+
   const url = new URL(path, HUBSPOT_BASE_URL);
   const headers: HeadersInit = {
     Authorization: `Bearer ${token}`,
@@ -206,9 +355,14 @@ async function hubspotRequest<T>(
   const response = await fetch(url, { ...init, headers });
 
   if (!response.ok) {
-    const bodySnippet = await response.text().then((text) => text.slice(0, 256)).catch(() => "");
+    const bodySnippet = await response
+      .text()
+      .then((text) => text.slice(0, 256))
+      .catch(() => "");
     const baseMessage = `HubSpot request failed (${response.status})`;
-    const contextMessage = bodySnippet ? `${baseMessage}: ${bodySnippet}` : baseMessage;
+    const contextMessage = bodySnippet
+      ? `${baseMessage}: ${bodySnippet}`
+      : baseMessage;
     throw new Error(contextMessage);
   }
 
