@@ -6,12 +6,11 @@ import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { getManagedAutomationBySlug } from "@/data/automations";
 
-type PageProps = {
-  params: { slug: string };
-};
+type AutomationPageParams = { slug: string };
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const automation = getManagedAutomationBySlug(params.slug);
+export async function generateMetadata({ params }: { params: Promise<AutomationPageParams> }): Promise<Metadata> {
+  const { slug } = await params;
+  const automation = getManagedAutomationBySlug(slug);
 
   if (!automation) {
     return {
@@ -26,8 +25,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default function AutomationPage({ params }: PageProps) {
-  const automation = getManagedAutomationBySlug(params.slug);
+export default async function AutomationPage({ params }: { params: Promise<AutomationPageParams> }) {
+  const { slug } = await params;
+  const automation = getManagedAutomationBySlug(slug);
 
   if (!automation) {
     return notFound();

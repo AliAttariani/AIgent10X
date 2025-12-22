@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { MOCK_USER } from "@/config/mock-user";
 import { Lock } from "lucide-react";
@@ -39,9 +39,9 @@ export default function CreatorAnalyticsPage() {
             Upgrade to Pro to access performance insights, usage metrics, and ranking boosts.
           </p>
         </div>
-        <Button asChild size="lg" className="px-6">
-          <Link href="/pricing">Upgrade to Pro</Link>
-        </Button>
+        <Link href="/pricing" className={buttonVariants({ size: "lg", className: "px-6" })}>
+          Upgrade to Pro
+        </Link>
       </div>
     );
   }

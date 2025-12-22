@@ -8,10 +8,8 @@ type MetricsPoint = {
   value: number;
 };
 
-type MetricsPageProps = {
-  params: {
-    id: string;
-  };
+type MetricsPageParams = {
+  id: string;
 };
 
 const requestSeries: MetricsPoint[] = [
@@ -134,12 +132,17 @@ function BarChart({ data, barColor }: { data: MetricsPoint[]; barColor: string }
   );
 }
 
-export default function CreatorAgentMetricsPage({ params }: MetricsPageProps) {
+export default async function CreatorAgentMetricsPage({
+  params,
+}: {
+  params: Promise<MetricsPageParams>;
+}) {
   if (MOCK_USER.plan !== "pro") {
     redirect("/creator/analytics");
   }
 
-  const agentLabel = formatAgentLabel(params.id ?? "agent");
+  const { id } = await params;
+  const agentLabel = formatAgentLabel(id ?? "agent");
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-10 px-4 pb-16 pt-10">

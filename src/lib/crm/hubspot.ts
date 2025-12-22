@@ -4,6 +4,7 @@ export const HUBSPOT_BASE_URL =
   process.env.HUBSPOT_BASE_URL ?? "https://api.hubapi.com";
 
 const HUBSPOT_PRIVATE_ACCESS_TOKEN = process.env.HUBSPOT_PRIVATE_ACCESS_TOKEN;
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 export type HubSpotRunContext = Record<string, unknown>;
 
@@ -297,9 +298,7 @@ async function createTask(
   input: { contactId: string; summary: string; dueInDays?: number },
   context?: HubSpotRunContext,
 ): Promise<string> {
-  const dueDate = new Date(
-    Date.now() + (input.dueInDays ?? 2) * 24 * 60 * 60 * 1000,
-  ).toISOString();
+  const dueDate = computeDueDateTimestamp(input.dueInDays);
 
   const payload = {
     properties: {
@@ -333,6 +332,21 @@ async function createTask(
   );
 
   return response.id;
+}
+
+function computeDueDateTimestamp(dueInDays?: number): string {
+  const fallback = 2;
+  const numeric = typeof dueInDays === "number" ? dueInDays : Number(dueInDays);
+  const days = Number.isFinite(numeric) ? Math.max(1, Math.round(numeric)) : fallback;
+
+  const now = new Date();
+  const startOfTodayUtc = Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate(),
+  );
+  const targetTimestamp = startOfTodayUtc + days * MS_PER_DAY;
+  return new Date(targetTimestamp).toISOString();
 }
 
 // ----------------- Core request helper -----------------

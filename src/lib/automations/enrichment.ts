@@ -1,6 +1,9 @@
 // src/lib/automations/enrichment.ts
 
-export interface RawLead {
+import { scoreLead } from "./scoring";
+import type { LeadFlowConfig } from "./leadFlowConfig";
+
+export interface RawLead { 
   email?: string;
   firstName?: string;
   lastName?: string;
@@ -21,7 +24,7 @@ export interface EnrichedLead extends RawLead {
  * Enrichment خیلی ساده برای الان.
  * هر وقت خواستی می‌تونی اینجا firmographic / intent و غیره اضافه کنی.
  */
-export function enrichLead(input: RawLead): EnrichedLead {
+export function enrichLead(input: RawLead, config: LeadFlowConfig): EnrichedLead {
   const fullName =
     [input.firstName, input.lastName].filter(Boolean).join(" ") || undefined;
 
@@ -29,13 +32,18 @@ export function enrichLead(input: RawLead): EnrichedLead {
   const normalizedEmail = email?.toLowerCase();
 
   // فعلاً یک scoring ساده
-  let score = 0;
-  if (normalizedEmail) score += 30;
-  if (input.company) score += 20;
-  if (input.jobTitle) score += 20;
-  if (input.source === "webinar" || input.source === "website-chat") {
-    score += 20;
-  }
+
+  const score = scoreLead(
+    {
+      email: normalizedEmail ?? email ?? "",
+      firstName: input.firstName,
+      lastName: input.lastName,
+      company: input.company,
+      jobTitle: input.jobTitle,
+      source: input.source,
+    },
+    config,
+  );
 
   return {
     ...input,

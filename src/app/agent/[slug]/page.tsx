@@ -1,16 +1,21 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getManagedAutomationBySlug } from "@/data/automations";
+import { getLeadFlowSettings, serializeLeadFlowSettings } from "@/lib/automations/leadFlowSettings";
+import { getLeadFlowUsageSummary } from "@/lib/automations/runUsage";
 import { AgentDetailClient } from "./AgentDetailClient";
 
 type AgentPageParams = { slug: string };
 
-interface AgentPageProps {
-  params: Promise<AgentPageParams> | AgentPageParams;
-}
+type AgentPageSearchParams = Record<string, string | string[] | undefined> | undefined;
 
-export async function generateMetadata({ params }: AgentPageProps): Promise<Metadata> {
-  const { slug } = await Promise.resolve(params);
+type AgentPageProps = {
+  params: Promise<AgentPageParams>;
+  searchParams?: Promise<AgentPageSearchParams>;
+};
+
+export async function generateMetadata({ params }: { params: Promise<AgentPageParams> }): Promise<Metadata> {
+  const { slug } = await params;
   const automation = getManagedAutomationBySlug(slug);
 
   if (!automation) {
@@ -27,7 +32,7 @@ export async function generateMetadata({ params }: AgentPageProps): Promise<Meta
 }
 
 export default async function AgentPage({ params }: AgentPageProps) {
-  const { slug } = await Promise.resolve(params);
+  const { slug } = await params;
   const automation = getManagedAutomationBySlug(slug);
   if (!automation) {
     notFound();
@@ -45,5 +50,21 @@ export default async function AgentPage({ params }: AgentPageProps) {
     guaranteeLabel: automation.guaranteeLabel,
   };
 
-  return <AgentDetailClient automation={automation} detailContent={detailContent} showBackLink />;
+  const isLeadFlowAutomation = automation.slug === "lead-flow-autopilot";
+  const leadFlowSettings = isLeadFlowAutomation
+    ? serializeLeadFlowSettings(await getLeadFlowSettings(automation.slug))
+    : null;
+  const runUsageSummary = isLeadFlowAutomation
+    ? await getLeadFlowUsageSummary(automation.slug)
+    : null;
+
+  return (
+    <AgentDetailClient
+      automation={automation}
+      detailContent={detailContent}
+      showBackLink
+      initialSettings={leadFlowSettings}
+      runUsage={runUsageSummary}
+    />
+  );
 }

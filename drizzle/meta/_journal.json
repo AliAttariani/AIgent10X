@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1765609563058,
+      "tag": "0000_romantic_banshee",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1765810000000,
+      "tag": "0001_lead_flow_run_idempotency",
+      "breakpoints": false
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1766200000000,
+      "tag": "0002_lead_flow_settings_snapshots",
+      "breakpoints": false
+    }
+  ]
+}

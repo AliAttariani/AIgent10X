@@ -1,29 +1,34 @@
+import type { LeadFlowConfig } from "./leadFlowConfig";
+
 export interface LeadData {
-  email: string;
+  email?: string;
   firstName?: string;
   lastName?: string;
   phone?: string;
   company?: string;
   source?: string;
-  engagementScore?: number;
+  jobTitle?: string;
 }
 
-export function scoreLead(lead: LeadData): number {
+export function scoreLead(lead: LeadData, config: LeadFlowConfig): number {
+  const { scoring } = config;
   let score = 0;
 
-  // Email quality
-  if (lead.email.includes("@company.com")) score += 20;
-  if (lead.email.includes("+")) score -= 5;
+  if (lead.email) {
+    score += scoring.emailPresentBonus;
+  }
 
-  // Name present
-  if (lead.firstName) score += 10;
+  if (lead.company) {
+    score += scoring.companyPresenceBonus;
+  }
 
-  // Source scoring
-  if (lead.source === "website_form") score += 15;
-  if (lead.source === "manual") score += 5;
+  if (lead.jobTitle) {
+    score += scoring.jobTitlePresenceBonus;
+  }
 
-  // Engagement
-  if (lead.engagementScore) score += lead.engagementScore;
+  if (lead.source && scoring.highIntentSources.includes(lead.source)) {
+    score += scoring.highIntentSourceBonus;
+  }
 
   return score;
 }

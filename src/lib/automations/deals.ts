@@ -1,6 +1,7 @@
 // src/lib/automations/deals.ts
 import type { EnrichedLead } from "./enrichment";
 import type { QualificationResult } from "./qualification";
+import type { LeadFlowConfig } from "./leadFlowConfig";
 
 export interface Deal {
   name: string;
@@ -15,25 +16,25 @@ export interface Deal {
 export function buildDeal(
   lead: EnrichedLead,
   qualification: QualificationResult,
+  config: LeadFlowConfig,
 ): Deal | null {
-  if (!qualification.isQualified) {
+  if (!config.deal.createWhenTierIn.includes(qualification.tier)) {
     return null;
   }
 
-  const baseAmount = 5000;
-  const multiplier =
-    qualification.tier === "A" ? 2 : qualification.tier === "B" ? 1 : 0.5;
-  const amount = baseAmount * multiplier;
+  const baseAmount = config.deal.baseAmount;
+  const tierMultiplier = config.deal.tierMultipliers[qualification.tier] ?? 1;
+  const amount = baseAmount * tierMultiplier;
 
   const name =
     lead.company && lead.fullName
-      ? `${lead.company} – ${lead.fullName}`
+      ? `${lead.company} - ${lead.fullName}`
       : lead.company ?? lead.fullName ?? lead.email ?? "New opportunity";
 
   return {
     name,
     amount,
-    stage: "qualification",
-    pipeline: "default",
+    stage: config.deal.defaultPipelineStage,
+    pipeline: config.deal.pipeline,
   };
 }

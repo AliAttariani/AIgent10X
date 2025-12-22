@@ -2,15 +2,13 @@
 // New deterministic demo runs live at /api/automations/[slug]/demo but we keep this
 // endpoint for deep-dive previews that need the richer model output.
 import { NextRequest, NextResponse } from "next/server";
-import {
-  runLeadFlowAutopilot,
-  type LeadFlowInput,
-  type LeadRecord,
-} from "@/lib/automations/lead-flow-autopilot";
+import { runLeadFlowAutopilot, type LeadFlowRunInput } from "@/lib/automations/lead-flow-autopilot";
 
 export const dynamic = "force-dynamic";
 
-const SAMPLE_INPUT: LeadFlowInput = {
+type LeadRecord = LeadFlowRunInput["leads"][number];
+
+const SAMPLE_INPUT: LeadFlowRunInput = {
   companyName: "PantherIQ",
   productDescription:
     "Lead orchestration platform that routes, qualifies, and personalizes follow-up for inbound demand across web, partners, and events.",
@@ -52,14 +50,14 @@ const SAMPLE_INPUT: LeadFlowInput = {
   ],
 };
 
-function validateInput(body: unknown): { valid: boolean; errors?: string[]; payload?: LeadFlowInput } {
+function validateInput(body: unknown): { valid: boolean; errors?: string[]; payload?: LeadFlowRunInput } {
   const errors: string[] = [];
 
   if (typeof body !== "object" || body === null) {
     return { valid: false, errors: ["Body must be a JSON object"] };
   }
 
-  const payload = body as Partial<LeadFlowInput>;
+  const payload = body as Partial<LeadFlowRunInput>;
 
   if (!payload.companyName || typeof payload.companyName !== "string" || !payload.companyName.trim()) {
     errors.push("companyName is required");

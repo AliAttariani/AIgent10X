@@ -1,4 +1,4 @@
-import { runLeadFlowAutopilotDemo } from "./automations/lead-flow-autopilot";
+import { demoLeadFlowAutopilot, type LeadFlowDemoResult } from "./automations/lead-flow-autopilot";
 import type { AutomationDemoResult } from "./demo/types";
 
 export type AutomationSlug = "lead-flow-autopilot" | "inbox-triage-copilot";
@@ -43,8 +43,10 @@ const automations: AutomationDefinition[] = [
     category: "lead",
     planType: "managed",
     runDemo: async (input) => {
-      const seedLeadCount = input.seedLeadCount ?? 25;
-      return runLeadFlowAutopilotDemo(seedLeadCount);
+      const _seedLeadCount = input.seedLeadCount ?? 25;
+      void _seedLeadCount;
+      const demo = await demoLeadFlowAutopilot();
+      return mapLeadFlowDemoToAutomationResult(demo);
     },
   },
   {
@@ -83,4 +85,25 @@ const automations: AutomationDefinition[] = [
 
 export function getAutomationBySlug(slug: string): AutomationDefinition | null {
   return automations.find((automation) => automation.slug === slug) ?? null;
+}
+
+function mapLeadFlowDemoToAutomationResult(demo: LeadFlowDemoResult): AutomationDemoResult {
+  const { summary } = demo;
+  const summaryText =
+    `Processed ${summary.inboundLeadsProcessed} inbound leads, qualified ${summary.qualifiedLeads}, ` +
+    `booked ${summary.meetingsBooked} meetings, saved ${summary.hoursSaved.toFixed(1)} hours.`;
+
+  return {
+    ok: true,
+    title: "Lead Flow Autopilot demo preview",
+    summary: summaryText,
+    metrics: [
+      { label: "Inbound leads", value: summary.inboundLeadsProcessed.toString() },
+      { label: "Qualified", value: summary.qualifiedLeads.toString() },
+      { label: "Meetings", value: summary.meetingsBooked.toString() },
+      { label: "Hours saved", value: `${summary.hoursSaved.toFixed(1)}h` },
+    ],
+    actions: summary.actions,
+    debug: { demo },
+  } satisfies AutomationDemoResult;
 }
