@@ -9,7 +9,7 @@
     "drizzle:gen": "drizzle-kit generate",
     "drizzle:push": "drizzle-kit push",
     "lint": "next lint",
-    "prepare": "node -e \"if(process.env.CI){process.exit(0)}\" && husky install",
+    "prepare": "node -e \"process.exit(process.env.CI ? 0 : 1)\" || husky install",
     "postinstall": "echo \"AIgent10X deps installed\""
   },
   "dependencies": {
