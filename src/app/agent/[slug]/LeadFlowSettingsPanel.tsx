@@ -286,7 +286,7 @@ export function LeadFlowSettingsPanel({
                 }
               />
               <p className="text-xs text-muted-foreground">
-                Creates a reminder or task so the lead gets a check-in on time—no more forgetting.
+                A follow-up task will be created this many days after a lead is qualified.
               </p>
             </div>
           </section>
