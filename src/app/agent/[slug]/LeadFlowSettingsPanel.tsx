@@ -167,19 +167,20 @@ export function LeadFlowSettingsPanel({
               )}
             >
               <div>
-                <Label className="text-base">Status</Label>
+                <Label className="text-base">Automation status</Label>
                 <p className="text-sm text-muted-foreground">
-                  Toggle the Lead Flow Autopilot for all inbound leads matching this configuration.
+                  Lead Flow Autopilot is <span className="font-semibold">{settings.isEnabled ? "ON" : "OFF"}</span> for future inbound leads only. Past runs and data never change.
                 </p>
+                <p className="text-xs text-muted-foreground">Safe to toggle anytime—this only changes what happens next.</p>
                 {settings.isEnabled ? (
                   <div className="mt-2 space-y-1 text-xs text-muted-foreground">
-                    <p>You can re-enable anytime. Previous runs remain unchanged.</p>
+                    <p>Need a pause? Switch it off without deleting anything, then turn it back on whenever you want.</p>
                     <button
                       type="button"
                       onClick={handleUndoDisable}
                       className="text-sm font-semibold text-primary underline-offset-4 transition hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2"
                     >
-                      Undo (disable automation)
+                      Pause automation (disable)
                     </button>
                   </div>
                 ) : null}
@@ -197,7 +198,7 @@ export function LeadFlowSettingsPanel({
 
           <section className="grid gap-6 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="qualificationScoreThreshold">Qualification score threshold</Label>
+              <Label htmlFor="qualificationScoreThreshold">What counts as a good lead?</Label>
               <Input
                 id="qualificationScoreThreshold"
                 type="number"
@@ -209,16 +210,16 @@ export function LeadFlowSettingsPanel({
                 }
               />
               <p className="text-xs text-muted-foreground">
-                Leads meeting or exceeding this score are routed to the sales team.
+                Leads at or above this score move ahead automatically; lower scores stay in review. Start higher until you trust the signal, then tune down slowly.
               </p>
             </div>
             <div className="space-y-2">
-              <Label className="flex items-center gap-2">Auto-close below threshold</Label>
+              <Label className="flex items-center gap-2">Auto-manage low-score leads</Label>
               <div className="flex items-center justify-between rounded-lg border border-border/70 px-4 py-3">
                 <div>
-                  <p className="text-sm font-medium text-foreground">Auto-close low-score leads</p>
+                  <p className="text-sm font-medium text-foreground">Keep the pipeline tidy without deleting anything.</p>
                   <p className="text-xs text-muted-foreground">
-                    Creates a follow-up task to auto-close or nurture leads below the threshold.
+                    We simply mark or task these leads based on your CRM rules so your team knows they were reviewed.
                   </p>
                 </div>
                 <Switch
@@ -229,7 +230,7 @@ export function LeadFlowSettingsPanel({
                       !settings.autoCloseBelowThreshold,
                     )
                   }
-                  aria-label="Auto-close below threshold"
+                  aria-label="Auto-manage low-score leads"
                 />
               </div>
             </div>
@@ -239,7 +240,7 @@ export function LeadFlowSettingsPanel({
 
           <section className="grid gap-6 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="defaultOwner">Default assignee</Label>
+              <Label htmlFor="defaultOwner">Who should receive good leads?</Label>
               <Input
                 id="defaultOwner"
                 placeholder="e.g. john@company.com"
@@ -252,11 +253,11 @@ export function LeadFlowSettingsPanel({
                 }
               />
               <p className="text-xs text-muted-foreground">
-                Optional. If set, qualified leads will be assigned to this person. Leave blank to use your default routing rules.
+                Optional. Send qualified leads to a specific person, or leave it empty and we follow your existing routing rules.
               </p>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="followUpDueInDays">Follow-up due in (days)</Label>
+              <Label htmlFor="followUpDueInDays">When should follow-up happen?</Label>
               <Input
                 id="followUpDueInDays"
                 type="number"
@@ -268,7 +269,7 @@ export function LeadFlowSettingsPanel({
                 }
               />
               <p className="text-xs text-muted-foreground">
-                Controls when HubSpot follow-up tasks are due after qualification.
+                Creates a reminder or task so the lead gets a check-in on time—no more forgetting.
               </p>
             </div>
           </section>
