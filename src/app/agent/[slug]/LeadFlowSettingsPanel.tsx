@@ -167,7 +167,19 @@ export function LeadFlowSettingsPanel({
               )}
             >
               <div>
-                <Label className="text-base">Automation status</Label>
+                <div className="flex items-center gap-2">
+                  <Label className="text-base">Automation status</Label>
+                  <span
+                    className={cn(
+                      "rounded-full px-2 py-0.5 text-xs font-medium",
+                      settings.isEnabled
+                        ? "bg-emerald-100 text-emerald-800"
+                        : "bg-muted text-muted-foreground",
+                    )}
+                  >
+                    {settings.isEnabled ? "ON — affects future leads only" : "OFF — no automation running"}
+                  </span>
+                </div>
                 <p className="text-sm text-muted-foreground">
                   Lead Flow Autopilot is <span className="font-semibold">{settings.isEnabled ? "ON" : "OFF"}</span> for future inbound leads only. Past runs and data never change.
                 </p>
@@ -209,6 +221,7 @@ export function LeadFlowSettingsPanel({
                   handleInputChange("qualificationScoreThreshold", Number(event.target.value))
                 }
               />
+              <p className="text-xs text-muted-foreground">Scores range from 0–100. Higher means stronger intent.</p>
               <p className="text-xs text-muted-foreground">
                 Leads at or above this score move ahead automatically; lower scores stay in review. Start higher until you trust the signal, then tune down slowly.
               </p>
@@ -283,6 +296,7 @@ export function LeadFlowSettingsPanel({
             Last updated {new Date(settings.updatedAt).toLocaleString()}
           </div>
           <div className="flex w-full flex-col gap-3 md:w-auto md:flex-row">
+            <p className="text-xs text-muted-foreground md:self-center">Changes apply to future leads only.</p>
             <Button
               type="button"
               variant="outline"
