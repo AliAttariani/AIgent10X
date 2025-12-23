@@ -214,24 +214,28 @@ export function LeadFlowSettingsPanel({
               </p>
             </div>
             <div className="space-y-2">
-              <Label className="flex items-center gap-2">Auto-manage low-score leads</Label>
-              <div className="flex items-center justify-between rounded-lg border border-border/70 px-4 py-3">
-                <div>
-                  <p className="text-sm font-medium text-foreground">Keep the pipeline tidy without deleting anything.</p>
-                  <p className="text-xs text-muted-foreground">
-                    We simply mark or task these leads based on your CRM rules so your team knows they were reviewed.
-                  </p>
+              <div className="rounded-lg border border-border/70 px-4 py-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <Label className="flex items-center gap-2 text-sm font-medium text-foreground">
+                      Auto-manage low-score leads
+                    </Label>
+                    <p className="text-sm text-muted-foreground">Keep the pipeline tidy without deleting anything.</p>
+                  </div>
+                  <Switch
+                    checked={settings.autoCloseBelowThreshold}
+                    onClick={() =>
+                      handleBooleanChange(
+                        "autoCloseBelowThreshold",
+                        !settings.autoCloseBelowThreshold,
+                      )
+                    }
+                    aria-label="Auto-manage low-score leads"
+                  />
                 </div>
-                <Switch
-                  checked={settings.autoCloseBelowThreshold}
-                  onClick={() =>
-                    handleBooleanChange(
-                      "autoCloseBelowThreshold",
-                      !settings.autoCloseBelowThreshold,
-                    )
-                  }
-                  aria-label="Auto-manage low-score leads"
-                />
+                <p className="mt-2 text-xs text-muted-foreground">
+                  We simply mark or task these leads based on your CRM rules so your team knows they were reviewed.
+                </p>
               </div>
             </div>
           </section>
