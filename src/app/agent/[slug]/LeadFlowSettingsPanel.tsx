@@ -239,10 +239,10 @@ export function LeadFlowSettingsPanel({
 
           <section className="grid gap-6 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="defaultOwner">Default owner</Label>
+              <Label htmlFor="defaultOwner">Default assignee</Label>
               <Input
                 id="defaultOwner"
-                placeholder="e.g. hubspot-owner@company.com"
+                placeholder="e.g. john@company.com"
                 value={settings.defaultOwner ?? ""}
                 onChange={(event) =>
                   handleInputChange(
@@ -252,7 +252,7 @@ export function LeadFlowSettingsPanel({
                 }
               />
               <p className="text-xs text-muted-foreground">
-                Optional routing label or HubSpot owner. Leave blank to use assignment rules.
+                Optional. If set, qualified leads will be assigned to this person. Leave blank to use your default routing rules.
               </p>
             </div>
             <div className="space-y-2">
